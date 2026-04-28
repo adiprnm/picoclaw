@@ -294,6 +294,7 @@ func (c *BaseChannel) HandleMessageWithContext(
 	}
 
 	inboundCtx.Channel = c.name
+	deliveryChatIDForIndicator := deliveryChatID
 	if inboundCtx.ChatID == "" {
 		inboundCtx.ChatID = deliveryChatID
 	}
@@ -321,8 +322,12 @@ func (c *BaseChannel) HandleMessageWithContext(
 	if c.owner != nil && c.placeholderRecorder != nil {
 		// Typing
 		if tc, ok := c.owner.(TypingCapable); ok {
-			if stop, err := tc.StartTyping(ctx, deliveryChatID); err == nil {
-				c.placeholderRecorder.RecordTypingStop(c.name, inboundCtx.ChatID, inboundCtx.TopicID, stop)
+			topicID := inboundCtx.TopicID
+			if strings.Contains(deliveryChatIDForIndicator, "/") {
+				topicID = ""
+			}
+			if stop, err := tc.StartTyping(ctx, deliveryChatIDForIndicator); err == nil {
+				c.placeholderRecorder.RecordTypingStop(c.name, deliveryChatIDForIndicator, topicID, stop)
 			}
 		}
 		// Reaction
