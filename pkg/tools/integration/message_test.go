@@ -23,7 +23,7 @@ func TestMessageTool_Execute_Success(t *testing.T) {
 		return nil
 	})
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	args := map[string]any{
 		"content": "Hello, world!",
 	}
@@ -73,7 +73,7 @@ func TestMessageTool_Execute_WithCustomChannel(t *testing.T) {
 		return nil
 	})
 
-	ctx := WithToolContext(context.Background(), "default-channel", "default-chat-id")
+	ctx := WithToolContext(context.Background(), "default-channel", "default-chat-id", "")
 	args := map[string]any{
 		"content": "Test message",
 		"channel": "custom-channel",
@@ -106,7 +106,7 @@ func TestMessageTool_Execute_SendFailure(t *testing.T) {
 		return sendErr
 	})
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	args := map[string]any{
 		"content": "Test message",
 	}
@@ -137,7 +137,7 @@ func TestMessageTool_Execute_SendFailure(t *testing.T) {
 func TestMessageTool_Execute_MissingContent(t *testing.T) {
 	tool := NewMessageTool()
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	args := map[string]any{} // content missing
 
 	result := tool.Execute(ctx, args)
@@ -179,7 +179,7 @@ func TestMessageTool_Execute_NotConfigured(t *testing.T) {
 	tool := NewMessageTool()
 	// No SetSendCallback called
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	args := map[string]any{
 		"content": "Test message",
 	}
@@ -277,7 +277,7 @@ func TestMessageTool_Execute_WithReplyToMessageID(t *testing.T) {
 		return nil
 	})
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	args := map[string]any{
 		"content":             "Reply test",
 		"reply_to_message_id": "msg-123",
@@ -304,7 +304,7 @@ func TestMessageTool_Execute_PropagatesTurnSessionMetadata(t *testing.T) {
 		return nil
 	})
 
-	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id")
+	ctx := WithToolContext(context.Background(), "test-channel", "test-chat-id", "")
 	ctx = WithToolSessionContext(ctx, "main", "sk_v1_tool", &session.SessionScope{
 		Version:    session.ScopeVersionV1,
 		AgentID:    "main",

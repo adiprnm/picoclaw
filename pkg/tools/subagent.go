@@ -39,6 +39,7 @@ type SubagentTask struct {
 	AgentID       string
 	OriginChannel string
 	OriginChatID  string
+	OriginTopicID string
 	Status        string
 	Result        string
 	Created       int64
@@ -134,7 +135,7 @@ func (sm *SubagentManager) RegisterTool(tool Tool) {
 
 func (sm *SubagentManager) Spawn(
 	ctx context.Context,
-	task, label, agentID, originChannel, originChatID string,
+	task, label, agentID, originChannel, originChatID, originTopicID string,
 	callback AsyncCallback,
 ) (string, error) {
 	sm.mu.Lock()
@@ -150,6 +151,7 @@ func (sm *SubagentManager) Spawn(
 		AgentID:       agentID,
 		OriginChannel: originChannel,
 		OriginChatID:  originChatID,
+		OriginTopicID: originTopicID,
 		Status:        "running",
 		Created:       time.Now().UnixMilli(),
 	}
@@ -242,7 +244,7 @@ After completing the task, provide a clear summary of what was done.`
 			MaxIterations: maxIter,
 			LLMOptions:    llmOptions,
 			MediaResolver: mediaResolver,
-		}, messages, task.OriginChannel, task.OriginChatID)
+		}, messages, task.OriginChannel, task.OriginChatID, task.OriginTopicID)
 
 		if err == nil {
 			result = &ToolResult{

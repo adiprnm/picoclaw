@@ -17,10 +17,10 @@ import (
 
 // JobExecutor is the interface for executing cron jobs through the agent
 type JobExecutor interface {
-	ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID string) (string, error)
+	ProcessDirectWithChannel(ctx context.Context, content, sessionKey, channel, chatID, topicID string) (string, error)
 	// PublishResponseIfNeeded sends response to the outbound bus only when the
 	// agent did not already deliver content through the message tool in this round.
-	PublishResponseIfNeeded(ctx context.Context, channel, chatID, sessionKey, response string)
+	PublishResponseIfNeeded(ctx context.Context, channel, chatID, topicID, sessionKey, response string)
 }
 
 // CronTool provides scheduling capabilities for the agent
@@ -147,6 +147,7 @@ func (t *CronTool) Execute(ctx context.Context, args map[string]any) *ToolResult
 func (t *CronTool) addJob(ctx context.Context, args map[string]any) *ToolResult {
 	channel := ToolChannel(ctx)
 	chatID := ToolChatID(ctx)
+	topicID := ToolTopicID(ctx)
 
 	if channel == "" || chatID == "" {
 		return ErrorResult("no session context (channel/chat_id not set). Use this tool in an active conversation.")
@@ -218,6 +219,7 @@ func (t *CronTool) addJob(ctx context.Context, args map[string]any) *ToolResult 
 		message,
 		channel,
 		chatID,
+		topicID,
 	)
 	if err != nil {
 		return ErrorResult(fmt.Sprintf("Error adding job: %v", err))
@@ -294,9 +296,10 @@ func (t *CronTool) enableJob(args map[string]any, enable bool) *ToolResult {
 
 // ExecuteJob executes a cron job through the agent
 func (t *CronTool) ExecuteJob(ctx context.Context, job *cron.CronJob) string {
-	// Get channel/chatID from job payload
+	// Get channel/chatID/topicID from job payload
 	channel := job.Payload.Channel
 	chatID := job.Payload.To
+	topicID := job.Payload.TopicID
 
 	// Default values if not set
 	if channel == "" {
@@ -312,8 +315,10 @@ func (t *CronTool) ExecuteJob(ctx context.Context, job *cron.CronJob) string {
 			output := "Error executing scheduled command: command execution is disabled"
 			pubCtx, pubCancel := context.WithTimeout(context.Background(), 5*time.Second)
 			defer pubCancel()
+			outboundCtx := bus.NewOutboundContext(channel, chatID, "")
+			outboundCtx.TopicID = topicID
 			t.msgBus.PublishOutbound(pubCtx, bus.OutboundMessage{
-				Context: bus.NewOutboundContext(channel, chatID, ""),
+				Context: outboundCtx,
 				Content: output,
 			})
 			return "ok"
@@ -335,8 +340,10 @@ func (t *CronTool) ExecuteJob(ctx context.Context, job *cron.CronJob) string {
 
 		pubCtx, pubCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer pubCancel()
+		outboundCtx := bus.NewOutboundContext(channel, chatID, "")
+		outboundCtx.TopicID = topicID
 		t.msgBus.PublishOutbound(pubCtx, bus.OutboundMessage{
-			Context: bus.NewOutboundContext(channel, chatID, ""),
+			Context: outboundCtx,
 			Content: output,
 		})
 		return "ok"
@@ -351,13 +358,14 @@ func (t *CronTool) ExecuteJob(ctx context.Context, job *cron.CronJob) string {
 		sessionKey,
 		channel,
 		chatID,
+		topicID,
 	)
 	if err != nil {
 		return fmt.Sprintf("Error: %v", err)
 	}
 
 	if response != "" {
-		t.executor.PublishResponseIfNeeded(ctx, channel, chatID, "", response)
+		t.executor.PublishResponseIfNeeded(ctx, channel, chatID, topicID, "", response)
 	}
 	return "ok"
 }

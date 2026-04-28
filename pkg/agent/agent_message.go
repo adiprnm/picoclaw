@@ -30,6 +30,7 @@ func (al *AgentLoop) buildContinuationTarget(msg bus.InboundMessage) (*continuat
 		SessionKey: resolveScopeKey(allocation.SessionKey, msg.SessionKey),
 		Channel:    msg.Channel,
 		ChatID:     msg.ChatID,
+		TopicID:    msg.Context.TopicID,
 	}, nil
 }
 
@@ -37,12 +38,12 @@ func (al *AgentLoop) ProcessDirect(
 	ctx context.Context,
 	content, sessionKey string,
 ) (string, error) {
-	return al.ProcessDirectWithChannel(ctx, content, sessionKey, "cli", "direct")
+	return al.ProcessDirectWithChannel(ctx, content, sessionKey, "cli", "direct", "")
 }
 
 func (al *AgentLoop) ProcessDirectWithChannel(
 	ctx context.Context,
-	content, sessionKey, channel, chatID string,
+	content, sessionKey, channel, chatID, topicID string,
 ) (string, error) {
 	if err := al.ensureHooksInitialized(ctx); err != nil {
 		return "", err
@@ -55,6 +56,7 @@ func (al *AgentLoop) ProcessDirectWithChannel(
 		Context: bus.InboundContext{
 			Channel:  channel,
 			ChatID:   chatID,
+			TopicID:  topicID,
 			ChatType: "direct",
 			SenderID: "cron",
 		},

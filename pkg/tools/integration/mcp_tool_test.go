@@ -530,7 +530,7 @@ func TestMCPTool_Execute_ImageContentStoredAsMedia(t *testing.T) {
 	mcpTool := NewMCPTool(manager, "screenshoto", &mcp.Tool{Name: "take_screenshot"})
 	mcpTool.SetMediaStore(store)
 
-	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42"), nil)
+	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42", ""), nil)
 
 	if result.IsError {
 		t.Fatalf("expected success, got %q", result.ForLLM)
@@ -585,7 +585,7 @@ func TestMCPTool_Execute_EmbeddedResourceBlobStoredAsMedia(t *testing.T) {
 	mcpTool := NewMCPTool(manager, "grafana", &mcp.Tool{Name: "get_dashboard_image"})
 	mcpTool.SetMediaStore(store)
 
-	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42"), nil)
+	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42", ""), nil)
 
 	if len(result.Media) != 1 {
 		t.Fatalf("expected embedded resource blob to be stored as media, got %d refs", len(result.Media))
@@ -622,7 +622,7 @@ func TestMCPTool_Execute_RespectsUserAudienceForBinaryContent(t *testing.T) {
 	mcpTool := NewMCPTool(manager, "screenshoto", &mcp.Tool{Name: "take_screenshot"})
 	mcpTool.SetMediaStore(store)
 
-	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42"), nil)
+	result := mcpTool.Execute(WithToolContext(context.Background(), "telegram", "chat-42", ""), nil)
 
 	if len(result.Media) != 0 {
 		t.Fatalf("expected no media ref for non-user audience, got %d", len(result.Media))

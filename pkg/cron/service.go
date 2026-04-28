@@ -29,6 +29,7 @@ type CronPayload struct {
 	Command string `json:"command,omitempty"`
 	Channel string `json:"channel,omitempty"`
 	To      string `json:"to,omitempty"`
+	TopicID string `json:"topicId,omitempty"`
 }
 
 type CronJobState struct {
@@ -408,7 +409,7 @@ func (cs *CronService) AddJob(
 	name string,
 	schedule CronSchedule,
 	message string,
-	channel, to string,
+	channel, to, topicID string,
 ) (*CronJob, error) {
 	cs.mu.Lock()
 	defer cs.mu.Unlock()
@@ -428,6 +429,7 @@ func (cs *CronService) AddJob(
 			Message: message,
 			Channel: channel,
 			To:      to,
+			TopicID: topicID,
 		},
 		State: CronJobState{
 			NextRunAtMS: cs.computeNextRun(&schedule, now),

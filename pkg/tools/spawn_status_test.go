@@ -341,7 +341,7 @@ func TestSpawnStatusTool_ChannelFiltering_ListAll(t *testing.T) {
 	tool := NewSpawnStatusTool(manager)
 
 	// Caller is chat-A — should only see subagent-1.
-	ctx := WithToolContext(context.Background(), "telegram", "chat-A")
+	ctx := WithToolContext(context.Background(), "telegram", "chat-A", "")
 	result := tool.Execute(ctx, map[string]any{})
 
 	if result.IsError {
@@ -369,7 +369,7 @@ func TestSpawnStatusTool_ChannelFiltering_GetByID(t *testing.T) {
 	tool := NewSpawnStatusTool(manager)
 
 	// Different chat trying to look up subagent-99 by ID.
-	ctx := WithToolContext(context.Background(), "slack", "room-OTHER")
+	ctx := WithToolContext(context.Background(), "slack", "room-OTHER", "")
 	result := tool.Execute(ctx, map[string]any{"task_id": "subagent-99"})
 
 	if !result.IsError {

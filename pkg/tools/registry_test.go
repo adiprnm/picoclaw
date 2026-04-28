@@ -165,7 +165,7 @@ func TestToolRegistry_ExecuteWithContext_InjectsToolContext(t *testing.T) {
 	}
 	r.Register(ct)
 
-	r.ExecuteWithContext(context.Background(), "ctx_tool", nil, "telegram", "chat-42", nil)
+	r.ExecuteWithContext(context.Background(), "ctx_tool", nil, "telegram", "chat-42", "", nil)
 
 	if ct.lastCtx == nil {
 		t.Fatal("expected Execute to be called")
@@ -185,7 +185,7 @@ func TestToolRegistry_ExecuteWithContext_EmptyContext(t *testing.T) {
 	}
 	r.Register(ct)
 
-	r.ExecuteWithContext(context.Background(), "ctx_tool", nil, "", "", nil)
+	r.ExecuteWithContext(context.Background(), "ctx_tool", nil, "", "", "", nil)
 
 	if ct.lastCtx == nil {
 		t.Fatal("expected Execute to be called")
@@ -207,7 +207,7 @@ func TestToolRegistry_ExecuteWithContext_PreservesMessageContext(t *testing.T) {
 	r.Register(ct)
 
 	baseCtx := WithToolMessageContext(context.Background(), "msg-123", "msg-100")
-	r.ExecuteWithContext(baseCtx, "ctx_tool", nil, "telegram", "chat-42", nil)
+	r.ExecuteWithContext(baseCtx, "ctx_tool", nil, "telegram", "chat-42", "", nil)
 
 	if ct.lastCtx == nil {
 		t.Fatal("expected Execute to be called")
@@ -237,7 +237,7 @@ func TestToolRegistry_ExecuteWithContext_AsyncCallback(t *testing.T) {
 	called := false
 	cb := func(_ context.Context, _ *ToolResult) { called = true }
 
-	result := r.ExecuteWithContext(context.Background(), "async_tool", nil, "", "", cb)
+	result := r.ExecuteWithContext(context.Background(), "async_tool", nil, "", "", "", cb)
 	if at.lastCB == nil {
 		t.Error("expected ExecuteAsync to have received a callback")
 	}
@@ -671,6 +671,7 @@ func TestToolRegistry_ExecuteWithContext_PanicRecovery(t *testing.T) {
 		map[string]any{"key": "value"},
 		"telegram",
 		"chat-123",
+		"",
 		nil,
 	)
 
@@ -745,7 +746,7 @@ func TestToolRegistry_ExecuteWithContext_SanitizesLargeBase64Payload(t *testing.
 		result: SilentResult(payload),
 	})
 
-	result := r.ExecuteWithContext(context.Background(), "base64_tool", nil, "telegram", "chat-1", nil)
+	result := r.ExecuteWithContext(context.Background(), "base64_tool", nil, "telegram", "chat-1", "", nil)
 
 	if result.ForLLM != largeBase64OmittedMessage {
 		t.Fatalf("expected sanitized payload, got %q", result.ForLLM)
@@ -765,7 +766,7 @@ func TestToolRegistry_ExecuteWithContext_ExtractsInlineMediaDataURL(t *testing.T
 		result: SilentResult(payload),
 	})
 
-	result := r.ExecuteWithContext(context.Background(), "inline_media_tool", nil, "telegram", "chat-42", nil)
+	result := r.ExecuteWithContext(context.Background(), "inline_media_tool", nil, "telegram", "chat-42", "", nil)
 
 	if len(result.Media) != 1 {
 		t.Fatalf("expected 1 media ref, got %d", len(result.Media))
@@ -800,7 +801,7 @@ func TestToolRegistry_ExecuteWithContext_SanitizesInlineMediaWithoutStore(t *tes
 		result: SilentResult(payload),
 	})
 
-	result := r.ExecuteWithContext(context.Background(), "inline_media_no_store", nil, "telegram", "chat-42", nil)
+	result := r.ExecuteWithContext(context.Background(), "inline_media_no_store", nil, "telegram", "chat-42", "", nil)
 
 	if strings.Contains(result.ForLLM, "data:image/png;base64") {
 		t.Fatalf("expected inline data URL to be removed from ForLLM, got %q", result.ForLLM)

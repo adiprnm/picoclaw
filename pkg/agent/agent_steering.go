@@ -11,18 +11,18 @@ import (
 
 func (al *AgentLoop) processMessageSync(ctx context.Context, msg bus.InboundMessage) {
 	if al.channelManager != nil {
-		defer al.channelManager.InvokeTypingStop(msg.Channel, msg.ChatID)
+		defer al.channelManager.InvokeTypingStop(msg.Channel, msg.ChatID, msg.Context.TopicID)
 	}
 
 	response, err := al.processMessage(ctx, msg)
-	al.publishResponseOrError(ctx, msg.Channel, msg.ChatID, msg.SessionKey, response, err)
+	al.publishResponseOrError(ctx, msg.Channel, msg.ChatID, msg.Context.TopicID, msg.SessionKey, response, err)
 }
 
 func (al *AgentLoop) runTurnWithSteering(ctx context.Context, initialMsg bus.InboundMessage) {
 	// Process the initial message
 	response, err := al.processMessage(ctx, initialMsg)
 	if err != nil {
-		if !al.maybePublishError(ctx, initialMsg.Channel, initialMsg.ChatID, initialMsg.SessionKey, err) {
+		if !al.maybePublishError(ctx, initialMsg.Channel, initialMsg.ChatID, initialMsg.Context.TopicID, initialMsg.SessionKey, err) {
 			return // context canceled
 		}
 		response = ""
@@ -77,7 +77,7 @@ func (al *AgentLoop) runTurnWithSteering(ctx context.Context, initialMsg bus.Inb
 
 	// Publish final response
 	if finalResponse != "" {
-		al.PublishResponseIfNeeded(ctx, target.Channel, target.ChatID, target.SessionKey, finalResponse)
+		al.PublishResponseIfNeeded(ctx, target.Channel, target.ChatID, target.TopicID, target.SessionKey, finalResponse)
 	}
 }
 

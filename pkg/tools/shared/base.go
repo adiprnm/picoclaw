@@ -45,6 +45,7 @@ type toolCtxKey struct{ name string }
 var (
 	ctxKeyChannel          = &toolCtxKey{"channel"}
 	ctxKeyChatID           = &toolCtxKey{"chatID"}
+	ctxKeyTopicID          = &toolCtxKey{"topicID"}
 	ctxKeyMessageID        = &toolCtxKey{"messageID"}
 	ctxKeyReplyToMessageID = &toolCtxKey{"replyToMessageID"}
 	ctxKeyAgentID          = &toolCtxKey{"agentID"}
@@ -52,10 +53,11 @@ var (
 	ctxKeySessionScope     = &toolCtxKey{"sessionScope"}
 )
 
-// WithToolContext returns a child context carrying channel and chatID.
-func WithToolContext(ctx context.Context, channel, chatID string) context.Context {
+// WithToolContext returns a child context carrying channel, chatID, and topicID.
+func WithToolContext(ctx context.Context, channel, chatID, topicID string) context.Context {
 	ctx = context.WithValue(ctx, ctxKeyChannel, channel)
 	ctx = context.WithValue(ctx, ctxKeyChatID, chatID)
+	ctx = context.WithValue(ctx, ctxKeyTopicID, topicID)
 	return ctx
 }
 
@@ -66,12 +68,12 @@ func WithToolMessageContext(ctx context.Context, messageID, replyToMessageID str
 	return ctx
 }
 
-// WithToolInboundContext returns a child context carrying channel/chat and inbound IDs.
+// WithToolInboundContext returns a child context carrying channel/chat/topic and inbound IDs.
 func WithToolInboundContext(
 	ctx context.Context,
-	channel, chatID, messageID, replyToMessageID string,
+	channel, chatID, topicID, messageID, replyToMessageID string,
 ) context.Context {
-	ctx = WithToolContext(ctx, channel, chatID)
+	ctx = WithToolContext(ctx, channel, chatID, topicID)
 	ctx = WithToolMessageContext(ctx, messageID, replyToMessageID)
 	return ctx
 }
@@ -97,6 +99,12 @@ func ToolChannel(ctx context.Context) string {
 // ToolChatID extracts the chatID from ctx, or "" if unset.
 func ToolChatID(ctx context.Context) string {
 	v, _ := ctx.Value(ctxKeyChatID).(string)
+	return v
+}
+
+// ToolTopicID extracts the topicID from ctx, or "" if unset.
+func ToolTopicID(ctx context.Context) string {
+	v, _ := ctx.Value(ctxKeyTopicID).(string)
 	return v
 }
 

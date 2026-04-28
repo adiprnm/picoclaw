@@ -426,6 +426,7 @@ toolLoop:
 			turnCtx,
 			ts.channel,
 			ts.chatID,
+			ts.opts.Dispatch.TopicID(),
 			ts.opts.Dispatch.MessageID(),
 			ts.opts.Dispatch.ReplyToMessageID(),
 		)
@@ -441,6 +442,7 @@ toolLoop:
 			toolArgs,
 			ts.channel,
 			ts.chatID,
+			ts.opts.Dispatch.TopicID(),
 			asyncCallback,
 		)
 		toolDuration := time.Since(toolStart)

@@ -242,22 +242,29 @@ func (m *Manager) SendPlaceholder(ctx context.Context, channel, chatID string) b
 
 // RecordTypingStop registers a typing stop function for later invocation.
 // Implements PlaceholderRecorder.
-func (m *Manager) RecordTypingStop(channel, chatID string, stop func()) {
+func (m *Manager) RecordTypingStop(channel, chatID, topicID string, stop func()) {
 	key := channel + ":" + chatID
-	entry := typingEntry{stop: stop, createdAt: time.Now()}
-	if previous, loaded := m.typingStops.Swap(key, entry); loaded {
-		if oldEntry, ok := previous.(typingEntry); ok && oldEntry.stop != nil {
-			oldEntry.stop()
+	if topicID != "" {
+		key = key + "/" + topicID
+	}
+	// If there's an existing entry, call its stop function before replacing
+	if v, loaded := m.typingStops.LoadAndDelete(key); loaded {
+		if entry, ok := v.(typingEntry); ok {
+			entry.stop()
 		}
 	}
+	m.typingStops.Store(key, typingEntry{stop: stop, createdAt: time.Now()})
 }
 
 // InvokeTypingStop invokes the registered typing stop function for the given channel and chatID.
 // It is safe to call even when no typing indicator is active (no-op).
 // Used by the agent loop to stop typing when processing completes (success, error, or panic),
 // regardless of whether an outbound message is published.
-func (m *Manager) InvokeTypingStop(channel, chatID string) {
+func (m *Manager) InvokeTypingStop(channel, chatID, topicID string) {
 	key := channel + ":" + chatID
+	if topicID != "" {
+		key = key + "/" + topicID
+	}
 	if v, loaded := m.typingStops.LoadAndDelete(key); loaded {
 		if entry, ok := v.(typingEntry); ok {
 			entry.stop()

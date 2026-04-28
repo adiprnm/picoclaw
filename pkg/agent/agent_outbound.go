@@ -17,30 +17,30 @@ import (
 	"github.com/sipeed/picoclaw/pkg/utils"
 )
 
-func (al *AgentLoop) maybePublishError(ctx context.Context, channel, chatID, sessionKey string, err error) bool {
+func (al *AgentLoop) maybePublishError(ctx context.Context, channel, chatID, topicID, sessionKey string, err error) bool {
 	if errors.Is(err, context.Canceled) {
 		return false
 	}
-	al.PublishResponseIfNeeded(ctx, channel, chatID, sessionKey, fmt.Sprintf("Error processing message: %v", err))
+	al.PublishResponseIfNeeded(ctx, channel, chatID, topicID, sessionKey, fmt.Sprintf("Error processing message: %v", err))
 	return true
 }
 
 func (al *AgentLoop) publishResponseOrError(
 	ctx context.Context,
-	channel, chatID, sessionKey string,
+	channel, chatID, topicID, sessionKey string,
 	response string,
 	err error,
 ) {
 	if err != nil {
-		if !al.maybePublishError(ctx, channel, chatID, sessionKey, err) {
+		if !al.maybePublishError(ctx, channel, chatID, topicID, sessionKey, err) {
 			return
 		}
 		response = ""
 	}
-	al.PublishResponseIfNeeded(ctx, channel, chatID, sessionKey, response)
+	al.PublishResponseIfNeeded(ctx, channel, chatID, topicID, sessionKey, response)
 }
 
-func (al *AgentLoop) PublishResponseIfNeeded(ctx context.Context, channel, chatID, sessionKey, response string) {
+func (al *AgentLoop) PublishResponseIfNeeded(ctx context.Context, channel, chatID, topicID, sessionKey, response string) {
 	if response == "" {
 		return
 	}
@@ -64,8 +64,10 @@ func (al *AgentLoop) PublishResponseIfNeeded(ctx context.Context, channel, chatI
 		return
 	}
 
+	outboundCtx := bus.NewOutboundContext(channel, chatID, "")
+	outboundCtx.TopicID = topicID
 	msg := bus.OutboundMessage{
-		Context: bus.NewOutboundContext(channel, chatID, ""),
+		Context: outboundCtx,
 		Content: response,
 	}
 	if sessionKey != "" {
@@ -76,6 +78,7 @@ func (al *AgentLoop) PublishResponseIfNeeded(ctx context.Context, channel, chatI
 		map[string]any{
 			"channel":     channel,
 			"chat_id":     chatID,
+			"topic_id":    topicID,
 			"content_len": len(response),
 		})
 }

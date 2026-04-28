@@ -28,8 +28,8 @@ func (a *channelManagerAdapter) GetEnabledChannels() []string {
 	return a.inner.GetEnabledChannels()
 }
 
-func (a *channelManagerAdapter) InvokeTypingStop(channel, chatID string) {
-	a.inner.InvokeTypingStop(channel, chatID)
+func (a *channelManagerAdapter) InvokeTypingStop(channel, chatID, topicID string) {
+	a.inner.InvokeTypingStop(channel, chatID, topicID)
 }
 
 func (a *channelManagerAdapter) SendMessage(ctx context.Context, msg bus.OutboundMessage) error {

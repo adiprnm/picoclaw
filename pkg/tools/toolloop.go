@@ -43,7 +43,7 @@ func RunToolLoop(
 	ctx context.Context,
 	config ToolLoopConfig,
 	messages []providers.Message,
-	channel, chatID string,
+	channel, chatID, topicID string,
 ) (*ToolLoopResult, error) {
 	iteration := 0
 	var finalContent string
@@ -172,7 +172,7 @@ func RunToolLoop(
 
 				var toolResult *ToolResult
 				if config.Tools != nil {
-					toolResult = config.Tools.ExecuteWithContext(ctx, tc.Name, tc.Arguments, channel, chatID, nil)
+					toolResult = config.Tools.ExecuteWithContext(ctx, tc.Name, tc.Arguments, channel, chatID, topicID, nil)
 				} else {
 					toolResult = ErrorResult("No tools available")
 				}

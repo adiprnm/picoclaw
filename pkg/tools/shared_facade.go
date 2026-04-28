@@ -38,8 +38,8 @@ const (
 	ToolPromptSourceDiscovery = toolshared.ToolPromptSourceDiscovery
 )
 
-func WithToolContext(ctx context.Context, channel, chatID string) context.Context {
-	return toolshared.WithToolContext(ctx, channel, chatID)
+func WithToolContext(ctx context.Context, channel, chatID, topicID string) context.Context {
+	return toolshared.WithToolContext(ctx, channel, chatID, topicID)
 }
 
 func WithToolMessageContext(ctx context.Context, messageID, replyToMessageID string) context.Context {
@@ -48,9 +48,9 @@ func WithToolMessageContext(ctx context.Context, messageID, replyToMessageID str
 
 func WithToolInboundContext(
 	ctx context.Context,
-	channel, chatID, messageID, replyToMessageID string,
+	channel, chatID, topicID, messageID, replyToMessageID string,
 ) context.Context {
-	return toolshared.WithToolInboundContext(ctx, channel, chatID, messageID, replyToMessageID)
+	return toolshared.WithToolInboundContext(ctx, channel, chatID, topicID, messageID, replyToMessageID)
 }
 
 func WithToolSessionContext(
@@ -67,6 +67,10 @@ func ToolChannel(ctx context.Context) string {
 
 func ToolChatID(ctx context.Context) string {
 	return toolshared.ToolChatID(ctx)
+}
+
+func ToolTopicID(ctx context.Context) string {
+	return toolshared.ToolTopicID(ctx)
 }
 
 func ToolMessageID(ctx context.Context) string {

@@ -28,7 +28,7 @@ type stubJobExecutor struct {
 
 func (s *stubJobExecutor) ProcessDirectWithChannel(
 	_ context.Context,
-	content, sessionKey, channel, chatID string,
+	content, sessionKey, channel, chatID, topicID string,
 ) (string, error) {
 	s.lastPrompt = content
 	s.lastKey = sessionKey
@@ -39,7 +39,7 @@ func (s *stubJobExecutor) ProcessDirectWithChannel(
 
 func (s *stubJobExecutor) PublishResponseIfNeeded(
 	_ context.Context,
-	channel, chatID, sessionKey, response string,
+	channel, chatID, topicID, sessionKey, response string,
 ) {
 	if s.alreadySent {
 		return
@@ -74,7 +74,7 @@ func newTestCronTool(t *testing.T) *CronTool {
 // TestCronTool_CommandBlockedFromRemoteChannel verifies command scheduling is restricted to internal channels
 func TestCronTool_CommandBlockedFromRemoteChannel(t *testing.T) {
 	tool := newTestCronTool(t)
-	ctx := WithToolContext(context.Background(), "telegram", "chat-1")
+	ctx := WithToolContext(context.Background(), "telegram", "chat-1", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":          "add",
 		"message":         "check disk",
@@ -93,7 +93,7 @@ func TestCronTool_CommandBlockedFromRemoteChannel(t *testing.T) {
 
 func TestCronTool_CommandDoesNotRequireConfirmByDefault(t *testing.T) {
 	tool := newTestCronTool(t)
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":     "add",
 		"message":    "check disk",
@@ -114,7 +114,7 @@ func TestCronTool_CommandRequiresConfirmWhenAllowCommandDisabled(t *testing.T) {
 	cfg.Tools.Cron.AllowCommand = false
 
 	tool := newTestCronToolWithConfig(t, cfg)
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":     "add",
 		"message":    "check disk",
@@ -135,7 +135,7 @@ func TestCronTool_CommandAllowedWithConfirmWhenAllowCommandDisabled(t *testing.T
 	cfg.Tools.Cron.AllowCommand = false
 
 	tool := newTestCronToolWithConfig(t, cfg)
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":          "add",
 		"message":         "check disk",
@@ -160,7 +160,7 @@ func TestCronTool_CommandBlockedWhenExecDisabled(t *testing.T) {
 	cfg.Tools.Exec.Enabled = false
 
 	tool := newTestCronToolWithConfig(t, cfg)
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":          "add",
 		"message":         "check disk",
@@ -180,7 +180,7 @@ func TestCronTool_CommandBlockedWhenExecDisabled(t *testing.T) {
 // TestCronTool_CommandAllowedFromInternalChannel verifies command scheduling works from internal channels
 func TestCronTool_CommandAllowedFromInternalChannel(t *testing.T) {
 	tool := newTestCronTool(t)
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":          "add",
 		"message":         "check disk",
@@ -217,7 +217,7 @@ func TestCronTool_AddJobRequiresSessionContext(t *testing.T) {
 // TestCronTool_NonCommandJobAllowedFromRemoteChannel verifies regular reminders work from any channel
 func TestCronTool_NonCommandJobAllowedFromRemoteChannel(t *testing.T) {
 	tool := newTestCronTool(t)
-	ctx := WithToolContext(context.Background(), "telegram", "chat-1")
+	ctx := WithToolContext(context.Background(), "telegram", "chat-1", "")
 	result := tool.Execute(ctx, map[string]any{
 		"action":     "add",
 		"message":    "time to stretch",

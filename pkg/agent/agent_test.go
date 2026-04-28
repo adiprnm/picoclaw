@@ -940,7 +940,7 @@ func TestToolRegistry_ToolRegistration(t *testing.T) {
 
 // TestToolContext_Updates verifies tool context helpers work correctly
 func TestToolContext_Updates(t *testing.T) {
-	ctx := tools.WithToolContext(context.Background(), "telegram", "chat-42")
+	ctx := tools.WithToolContext(context.Background(), "telegram", "chat-42", "")
 
 	if got := tools.ToolChannel(ctx); got != "telegram" {
 		t.Errorf("expected channel 'telegram', got %q", got)
@@ -958,6 +958,7 @@ func TestToolContext_Updates(t *testing.T) {
 		context.Background(),
 		"telegram",
 		"chat-42",
+		"",
 		"msg-123",
 		"msg-100",
 	)
@@ -3296,6 +3297,7 @@ func TestAgentLoop_ContextExhaustionRetry(t *testing.T) {
 		sessionKey,
 		"test",
 		"test-chat",
+		"",
 	)
 	if err != nil {
 		t.Fatalf("Expected success after retry, got error: %v", err)
@@ -3473,7 +3475,7 @@ func TestAgentLoop_EmptyModelResponseUsesAccurateFallback(t *testing.T) {
 	provider := &simpleMockProvider{response: ""}
 	al := NewAgentLoop(cfg, msgBus, provider)
 
-	response, err := al.ProcessDirectWithChannel(context.Background(), "hello", "empty-response", "test", "chat1")
+	response, err := al.ProcessDirectWithChannel(context.Background(), "hello", "empty-response", "test", "chat1", "")
 	if err != nil {
 		t.Fatalf("ProcessDirectWithChannel failed: %v", err)
 	}
@@ -3505,7 +3507,7 @@ func TestAgentLoop_ToolLimitUsesDedicatedFallback(t *testing.T) {
 	al := NewAgentLoop(cfg, msgBus, provider)
 	al.RegisterTool(&toolLimitTestTool{})
 
-	response, err := al.ProcessDirectWithChannel(context.Background(), "hello", "tool-limit", "test", "chat1")
+	response, err := al.ProcessDirectWithChannel(context.Background(), "hello", "tool-limit", "test", "chat1", "")
 	if err != nil {
 		t.Fatalf("ProcessDirectWithChannel failed: %v", err)
 	}
@@ -3582,6 +3584,7 @@ func TestProcessDirectWithChannel_TriggersMCPInitialization(t *testing.T) {
 		"session-1",
 		"cli",
 		"direct",
+		"",
 	)
 	if err != nil {
 		t.Fatalf("ProcessDirectWithChannel failed: %v", err)

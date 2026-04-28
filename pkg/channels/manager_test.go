@@ -1716,11 +1716,11 @@ func TestInvokeTypingStop_CallsRegisteredStop(t *testing.T) {
 	m := newTestManager()
 	var stopCalled bool
 
-	m.RecordTypingStop("telegram", "chat123", func() {
+	m.RecordTypingStop("telegram", "chat123", "", func() {
 		stopCalled = true
 	})
 
-	m.InvokeTypingStop("telegram", "chat123")
+	m.InvokeTypingStop("telegram", "chat123", "")
 
 	if !stopCalled {
 		t.Fatal("expected typing stop func to be called")
@@ -1730,19 +1730,19 @@ func TestInvokeTypingStop_CallsRegisteredStop(t *testing.T) {
 func TestInvokeTypingStop_NoOpWhenNoEntry(t *testing.T) {
 	m := newTestManager()
 	// Should not panic
-	m.InvokeTypingStop("telegram", "nonexistent")
+	m.InvokeTypingStop("telegram", "nonexistent", "")
 }
 
 func TestInvokeTypingStop_Idempotent(t *testing.T) {
 	m := newTestManager()
 	var callCount int
 
-	m.RecordTypingStop("telegram", "chat123", func() {
+	m.RecordTypingStop("telegram", "chat123", "", func() {
 		callCount++
 	})
 
-	m.InvokeTypingStop("telegram", "chat123")
-	m.InvokeTypingStop("telegram", "chat123") // Second call: entry already removed, no-op
+	m.InvokeTypingStop("telegram", "chat123", "")
+	m.InvokeTypingStop("telegram", "chat123", "") // Second call: entry already removed, no-op
 
 	if callCount != 1 {
 		t.Fatalf("expected stop to be called once, got %d", callCount)
@@ -1759,7 +1759,7 @@ func TestPreSend_TypingStopCalled(t *testing.T) {
 		},
 	}
 
-	m.RecordTypingStop("test", "123", func() {
+	m.RecordTypingStop("test", "123", "", func() {
 		stopCalled = true
 	})
 
@@ -1805,7 +1805,7 @@ func TestPreSend_TypingAndPlaceholder(t *testing.T) {
 		},
 	}
 
-	m.RecordTypingStop("test", "123", func() {
+	m.RecordTypingStop("test", "123", "", func() {
 		stopCalled = true
 	})
 	m.RecordPlaceholder("test", "123", "456")
@@ -1848,7 +1848,7 @@ func TestRecordTypingStop_ConcurrentSafe(t *testing.T) {
 		go func(i int) {
 			defer wg.Done()
 			chatID := fmt.Sprintf("chat_%d", i%10)
-			m.RecordTypingStop("test", chatID, func() {})
+			m.RecordTypingStop("test", chatID, "", func() {})
 		}(i)
 	}
 	wg.Wait()
@@ -1859,11 +1859,11 @@ func TestRecordTypingStop_ReplacesExistingStop(t *testing.T) {
 	var oldStopCalls int
 	var newStopCalls int
 
-	m.RecordTypingStop("test", "123", func() {
+	m.RecordTypingStop("test", "123", "", func() {
 		oldStopCalls++
 	})
 
-	m.RecordTypingStop("test", "123", func() {
+	m.RecordTypingStop("test", "123", "", func() {
 		newStopCalls++
 	})
 
@@ -2066,7 +2066,7 @@ func TestPreSendStillWorksWithWrappedTypes(t *testing.T) {
 	}
 
 	// Use the new wrapped types via the public API
-	m.RecordTypingStop("test", "chat1", func() {
+	m.RecordTypingStop("test", "chat1", "", func() {
 		stopCalled = true
 	})
 	m.RecordPlaceholder("test", "chat1", "ph_id")

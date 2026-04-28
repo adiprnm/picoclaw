@@ -322,7 +322,7 @@ func (c *BaseChannel) HandleMessageWithContext(
 		// Typing
 		if tc, ok := c.owner.(TypingCapable); ok {
 			if stop, err := tc.StartTyping(ctx, deliveryChatID); err == nil {
-				c.placeholderRecorder.RecordTypingStop(c.name, deliveryChatID, stop)
+				c.placeholderRecorder.RecordTypingStop(c.name, deliveryChatID, inboundCtx.TopicID, stop)
 			}
 		}
 		// Reaction

@@ -1299,6 +1299,7 @@ func TestAgentLoop_HookRespond_InterruptSkipsRemaining(t *testing.T) {
 			sessionKey,
 			"cli",
 			"chat1",
+			"",
 		)
 		resultCh <- result{resp: resp, err: err}
 	}()
@@ -1379,6 +1380,7 @@ func TestAgentLoop_HookRespond_SteeringSkipsRemaining(t *testing.T) {
 			sessionKey,
 			"cli",
 			"chat1",
+			"",
 		)
 		resultCh <- result{resp: resp, err: err}
 	}()

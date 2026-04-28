@@ -102,6 +102,7 @@ type continuationTarget struct {
 	SessionKey string
 	Channel    string
 	ChatID     string
+	TopicID    string
 }
 
 const (
@@ -232,7 +233,7 @@ func (al *AgentLoop) Run(ctx context.Context) error {
 				defer func() { <-al.workerSem }() // Release slot
 
 				if al.channelManager != nil {
-					defer al.channelManager.InvokeTypingStop(m.Channel, m.ChatID)
+					defer al.channelManager.InvokeTypingStop(m.Channel, m.ChatID, m.Context.TopicID)
 				}
 
 				al.runTurnWithSteering(ctx, m)

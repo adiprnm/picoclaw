@@ -34,7 +34,7 @@ type ChannelManager interface {
 	GetEnabledChannels() []string
 
 	// InvokeTypingStop signals that typing has stopped.
-	InvokeTypingStop(channel, chatID string)
+	InvokeTypingStop(channel, chatID, topicID string)
 
 	// SendMessage sends a text message to the specified channel and chat.
 	SendMessage(ctx context.Context, msg bus.OutboundMessage) error

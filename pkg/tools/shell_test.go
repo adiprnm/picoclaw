@@ -325,7 +325,7 @@ func TestShellTool_RemoteChannelBlockedByDefault(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewExecToolWithConfig() error: %v", err)
 	}
-	ctx := WithToolContext(context.Background(), "telegram", "chat-1")
+	ctx := WithToolContext(context.Background(), "telegram", "chat-1", "")
 	result := tool.Execute(ctx, map[string]any{"action": "run", "command": "echo hi"})
 
 	if !result.IsError {
@@ -346,7 +346,7 @@ func TestShellTool_InternalChannelAllowed(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewExecToolWithConfig() error: %v", err)
 	}
-	ctx := WithToolContext(context.Background(), "cli", "direct")
+	ctx := WithToolContext(context.Background(), "cli", "direct", "")
 	result := tool.Execute(ctx, map[string]any{"action": "run", "command": "echo hi"})
 
 	if result.IsError {
@@ -386,7 +386,7 @@ func TestShellTool_AllowRemoteBypassesChannelCheck(t *testing.T) {
 	if err != nil {
 		t.Fatalf("NewExecToolWithConfig() error: %v", err)
 	}
-	ctx := WithToolContext(context.Background(), "telegram", "chat-1")
+	ctx := WithToolContext(context.Background(), "telegram", "chat-1", "")
 	result := tool.Execute(ctx, map[string]any{"action": "run", "command": "echo hi"})
 
 	if result.IsError {
@@ -745,7 +745,7 @@ func TestShellTool_RunBackground_List(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	runResult := tool.Execute(ctx, map[string]any{
 		"action":     "run",
@@ -784,7 +784,7 @@ func TestShellTool_Read_Output(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	runResult := tool.Execute(ctx, map[string]any{
 		"action":     "run",
@@ -818,7 +818,7 @@ func TestShellTool_Kill(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	runResult := tool.Execute(ctx, map[string]any{
 		"action":     "run",
@@ -857,7 +857,7 @@ func TestShellTool_PTY_AllowedCommands(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Test that PTY is allowed for non-interpreter commands
 	result := tool.Execute(ctx, map[string]any{
@@ -892,7 +892,7 @@ func TestShellTool_PTY_WriteRead(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a PTY session with a command that waits for input
 	// Using 'cat' which will wait for stdin
@@ -951,7 +951,7 @@ func TestShellTool_PTY_Poll(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a PTY session with a long-running command
 	result := tool.Execute(ctx, map[string]any{
@@ -1004,7 +1004,7 @@ func TestShellTool_PTY_Kill(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a PTY session with a long-running command
 	result := tool.Execute(ctx, map[string]any{
@@ -1049,7 +1049,7 @@ func TestShellTool_Write_Read_NonPTY(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a background process that reads from stdin and outputs it
 	// Using 'cat' which echoes stdin to stdout
@@ -1102,7 +1102,7 @@ func TestShellTool_Read_NonPTY_Running(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a long-running process that produces output over time
 	// Using sh -c with sleep at the end so process doesn't exit immediately
@@ -1170,7 +1170,7 @@ func TestShellTool_ProcessGroupKill(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a shell that spawns child processes (non-PTY mode)
 	// The sh -c command creates child sleep processes
@@ -1230,7 +1230,7 @@ func TestShellTool_PTY_ProcessGroupKill(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start the test binary with PTY mode
 	// It forks 4 child sleep processes and waits for signals
@@ -1282,7 +1282,7 @@ func TestShellTool_PTY_Background_Read(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a fast command with PTY + background mode
 	runResult := tool.Execute(ctx, map[string]any{
@@ -1322,7 +1322,7 @@ func TestShellTool_PTY_Background_ReadNoBlock(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	// Start a long-running command with PTY + background mode
 	// This command produces no output, just sleeps
@@ -1366,7 +1366,7 @@ func TestShellTool_Poll_Status(t *testing.T) {
 	sm := NewSessionManager()
 	tool.sessionManager = sm
 
-	ctx := WithToolContext(context.Background(), "cli", "test")
+	ctx := WithToolContext(context.Background(), "cli", "test", "")
 
 	runResult := tool.Execute(ctx, map[string]any{
 		"action":     "run",
