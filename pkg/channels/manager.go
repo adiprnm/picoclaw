@@ -285,8 +285,12 @@ func (m *Manager) preSend(ctx context.Context, name string, msg bus.OutboundMess
 	chatID := outboundMessageChatID(msg)
 	key := name + ":" + chatID
 
-	// 1. Stop typing
-	if v, loaded := m.typingStops.LoadAndDelete(key); loaded {
+	// 1. Stop typing (key includes topicID for forum topics)
+	typingKey := key
+	if topicID := strings.TrimSpace(msg.Context.TopicID); topicID != "" {
+		typingKey = typingKey + "/" + topicID
+	}
+	if v, loaded := m.typingStops.LoadAndDelete(typingKey); loaded {
 		if entry, ok := v.(typingEntry); ok {
 			entry.stop() // idempotent, safe
 		}
